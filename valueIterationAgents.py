@@ -62,6 +62,7 @@ class ValueIterationAgent(ValueEstimationAgent):
 
     def runValueIteration(self):
         # Write value iteration code here
+        updated_values = {}
         for _ in range(self.iterations):
             for state in self.mdp.getStates():
                 max_q_value = -float('inf')
@@ -70,10 +71,17 @@ class ValueIterationAgent(ValueEstimationAgent):
                 else: 
                     for action in self.mdp.getPossibleActions(state):
                         q_value = self.computeQValueFromValues(state, action)
+                        print(q_value)
                         if q_value > max_q_value:
                             max_q_value = q_value
-                self.values[state] = max_q_value
+                updated_values[state] = max_q_value
+                
+        for key in updated_values:
+            print(key)
+            self.values[key] = updated_values[key]
+            
         print(self.values)
+        
 
 
     def getValue(self, state):
@@ -88,16 +96,16 @@ class ValueIterationAgent(ValueEstimationAgent):
           Compute the Q-value of action in state from the
           value function stored in self.values.
 
-          Qk+1(s,a) = sum(T(s,a,s') * [R(s,a,s') + (discount * max_a'(Vk(s'))])
+          Qk+1(s,a) = sum(T(s,a,s') * [R(s,a,s') + (discount * (Vk(s'))])
         """
-        total_quality = 0
-        for state_prob_pair in self.mdp.getTransitionStatesAndProbs(state, action):
-            new_state = state_prob_pair[0]
-            prob = state_prob_pair[1]
+        
+        total_quality_value = 0
+        for new_state, prob in self.mdp.getTransitionStatesAndProbs(state, action):
             reward = self.mdp.getReward(state, action, new_state)
-            next_value = self.getValue(new_state)
-            total_quality += prob * (reward + (self.discount * next_value))
-        return total_quality
+            quality_value = self.getValue(new_state)
+            total_quality_value += prob * (reward + (self.discount * quality_value))
+        print("total_quality", total_quality_value)
+        return total_quality_value
 
     def computeActionFromValues(self, state):
         """
